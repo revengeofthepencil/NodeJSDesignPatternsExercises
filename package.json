@@ -6,7 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {},
+  "dependencies": {
+    "mkdirp": "^3.0.1",
+    "slug": "^8.2.3",
+    "superagent": "^8.1.2"
+  },
   "engines": {
     "node": ">=14"
   },
