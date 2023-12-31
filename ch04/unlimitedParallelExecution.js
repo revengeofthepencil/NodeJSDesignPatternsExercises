@@ -1,5 +1,3 @@
-
-
 const runParallel = tasks => {
 	function finish () {
 		console.log(`All set! Ran ${tasks.length} tasks`)
