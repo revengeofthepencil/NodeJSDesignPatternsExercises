@@ -6,14 +6,13 @@ const runParallel = tasks => {
 	  
 	let completed = 0
 	tasks.forEach(task => {
-
-	 task(() => {
-		completed = completed + 1;
-		console.log(`got it! completed count= ${completed}`);
-		if (completed === tasks.length) {
-		  finish()
-		}
-	  })
+		task(() => {
+			completed = completed + 1;
+			console.log(`got it! completed count= ${completed}`);
+			if (completed === tasks.length) {
+			finish()
+			}
+		})
 	})
 };
 
