@@ -11,6 +11,11 @@
     "slug": "^8.2.3",
     "superagent": "^8.1.2"
   },
+  "devDependencies": {
+    "eslint": "^7.7.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0"
+  },
   "engines": {
     "node": ">=14"
   },
