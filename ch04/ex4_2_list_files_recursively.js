@@ -60,7 +60,7 @@ if (process.argv.length > 2) {
 		if (err) {
 			console.error('Yikes! Error! ', err);
 		} else {
-			console.log(`booty ow! got ${JSON.stringify(res)}`);
+			console.log(`Oh yeah! got ${JSON.stringify(res)}`);
 		}
 	};
 	listNestedFiles(directoryPath, cb);
