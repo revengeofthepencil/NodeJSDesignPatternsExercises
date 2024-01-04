@@ -19,8 +19,46 @@ careful to keep the number of parallel tasks under control!
 
 const MAX_CONCURRENT = 4;
 
-function recursiveFind(dir, keyword, cb) {
+
+function readFileTask (fullFile, keyword, queue, cb) {            
+	return fs.readFile(fullFile, (errRead, data) => {
+		if (errRead) {
+			return cb(errRead);
+		};
+
+		const hasText = data.includes(keyword);
+		cb(null, {
+			fullFile, hasText
+		})
+		return hasText;
+	});
+  };
+
+
+function processFileOrDirTask (
+	fullFile,
+	keyword,
+	callbackForSubDir,
+	callbackForFile,
+	queue) { 
+	return fs.stat(fullFile, (errStat, stat) => {
+		if (errStat) {
+			return callbackForFile(errStat);
+		};
+
+		if (stat && stat.isDirectory()) {
+			return recursiveFind(fullFile, keyword, callbackForSubDir, queue)
+		};
+
+		return readFileTask(fullFile, keyword, queue, callbackForFile)
+	});
+}
+
+function recursiveFind(dir, keyword, cb, queue = null) {
 	const filesWithKeyword = [];
+	if (!queue) {
+		queue = 'party';
+	}
 
 	function finish() {
 		const finishMessage = `finished with ${filesWithKeyword.length} files in ${dir} matching ${keyword}`;
@@ -44,41 +82,36 @@ function recursiveFind(dir, keyword, cb) {
 
 	filesInDir.forEach(filePath => {
 		const fullFile = path.resolve(dir, filePath);
-		return fs.stat(fullFile, (errStat, stat) => {
-			if (errStat) {
-				return cb(errStat);
-			};
 
-			if (stat && stat.isDirectory()) {
-				const callbackForSubDir = (subdirErr, subdirRes) => {
-					if (subdirErr) {
-						cb(subdirErr);
-					} else {
-						if (subdirRes && subdirRes.length > 0) {
-							filesWithKeyword.push(...subdirRes);
-						}
-					}
-					updateCompletedStatus();
-				};
+		const callbackForFile = (fileErr, fileResp) => {
+			if (fileErr) {
+				cb(fileErr);
+			}
 
-				return recursiveFind(fullFile, keyword, callbackForSubDir)
-			};
+			if (fileResp.hasText === true) {
+				filesWithKeyword.push(fullFile);
+			}
+			updateCompletedStatus();
+		};
 
-			return fs.readFile(fullFile, (errRead, data) => {
-				if (errRead) {
-					return cb(errRead);
-				};
-	
-				const hasText = data.includes(keyword);
-				if (hasText) {
-					filesWithKeyword.push(fullFile);
+
+		const callbackForSubDir = (subdirErr, subdirRes) => {
+			if (subdirErr) {
+				cb(subdirErr);
+			} else {
+				if (subdirRes && subdirRes.length > 0) {
+					filesWithKeyword.push(...subdirRes);
 				}
-	
-				updateCompletedStatus();
-				return hasText;
-			});
-	
-		});
+			}
+			updateCompletedStatus();
+		};
+
+		return processFileOrDirTask (
+			fullFile,
+			keyword,
+			callbackForSubDir,
+			callbackForFile,
+			queue)
 		  
 	});
 }
