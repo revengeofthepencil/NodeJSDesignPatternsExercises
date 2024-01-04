@@ -1,8 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import { TaskQueueEx3 } from './TaskQueueEx3.js';
 
 /*
-4.3 Recursive find: Write recursiveFind(), a callback-style
+4.3 Recursive find: Write recursiveFindTask(), a callback-style
 function that takes a path to a directory in the local
 filesystem and a keyword
 
@@ -47,19 +48,15 @@ function processFileOrDirTask (
 		};
 
 		if (stat && stat.isDirectory()) {
-			return recursiveFind(fullFile, keyword, callbackForSubDir, queue)
+			return recursiveFindTask(fullFile, keyword, queue, callbackForSubDir)
 		};
 
 		return readFileTask(fullFile, keyword, queue, callbackForFile)
 	});
 }
 
-function recursiveFind(dir, keyword, cb, queue = null) {
+function recursiveFindTask(dir, keyword, cb, queue) {
 	const filesWithKeyword = [];
-	if (!queue) {
-		queue = 'party';
-	}
-
 	function finish() {
 		const finishMessage = `finished with ${filesWithKeyword.length} files in ${dir} matching ${keyword}`;
 		console.log(finishMessage);
@@ -115,6 +112,13 @@ function recursiveFind(dir, keyword, cb, queue = null) {
 		  
 	});
 }
+
+function recursiveFind(dir, keyword, cb) {
+	const queue = new TaskQueueEx3(MAX_CONCURRENT);
+	recursiveFindTask(dir, keyword, queue, cb);
+	queue.on('error', console.error)
+	queue.on('empty', () => console.log('Download complete'))
+};
 
 if (process.argv.length > 3) {
 	const directoryPath = process.argv[2];
