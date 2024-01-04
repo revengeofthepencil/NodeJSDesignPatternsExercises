@@ -48,7 +48,13 @@ function processFileOrDirTask (
 		};
 
 		if (stat && stat.isDirectory()) {
-			return recursiveFindTask(fullFile, keyword, queue, callbackForSubDir)
+			return queue.pushTask((done) => {
+				const fullCallback = () => {
+					callbackForSubDir();
+					done();
+				};
+				recursiveFindTask(fullFile, keyword, fullCallback, queue)
+			});
 		};
 
 		return readFileTask(fullFile, keyword, queue, callbackForFile)
@@ -115,9 +121,16 @@ function recursiveFindTask(dir, keyword, cb, queue) {
 
 function recursiveFind(dir, keyword, cb) {
 	const queue = new TaskQueueEx3(MAX_CONCURRENT);
-	recursiveFindTask(dir, keyword, queue, cb);
 	queue.on('error', console.error)
 	queue.on('empty', () => console.log('Download complete'))
+
+	queue.pushTask((done) => {
+		const fullCB = () => {
+			done();
+			cb();
+		};
+		recursiveFindTask(dir, keyword, fullCB, queue);
+	});
 };
 
 if (process.argv.length > 3) {
@@ -128,7 +141,7 @@ if (process.argv.length > 3) {
 		if (err) {
 			console.error('Yikes! Error! ', err);
 		} else {
-			console.log(`Oh yeah! for keyword '${keyword}', got ${res.length} matches: ${JSON.stringify(res)}`);
+			console.log(`Oh yeah! for keyword '${keyword}', got matches: ${JSON.stringify(res)}`);
 		}
 	};
 	recursiveFind(directoryPath, keyword, cb);

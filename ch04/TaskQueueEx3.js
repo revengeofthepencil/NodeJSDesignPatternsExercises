@@ -14,17 +14,18 @@ export class TaskQueueEx3 extends EventEmitter {
 	}
 	next () {
 		if (this.running === 0 && this.queue.length === 0) {         
-			console.log('empty!');
+			console.log('it is empty');
 			return this.emit('empty')
 		  }
 		  while (this.running < this.concurrency && this.queue.length) {
 			const task = this.queue.shift();
-			
+
 			task((err) => {
 			  if (err) {
 				this.emit('error', err)
 			  }
 			  this.running--
+			  console.log(`done! running = ${this.running}`);
 			  process.nextTick(this.next.bind(this))
 			})
 			this.running++
