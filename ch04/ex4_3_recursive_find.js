@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { TaskQueueEx3 } from './TaskQueueEx3.js';
 
 /*
-4.3 Recursive find: Write recursiveFindTask(), a callback-style
+4.3 Recursive find: Write recursiveFind(), a callback-style
 function that takes a path to a directory in the local
 filesystem and a keyword
 
@@ -20,49 +19,9 @@ careful to keep the number of parallel tasks under control!
 
 const MAX_CONCURRENT = 4;
 
-
-function readFileTask (fullFile, keyword, queue, cb) {            
-	return fs.readFile(fullFile, (errRead, data) => {
-		if (errRead) {
-			return cb(errRead);
-		};
-
-		const hasText = data.includes(keyword);
-		cb(null, {
-			fullFile, hasText
-		})
-		return hasText;
-	});
-  };
-
-
-function processFileOrDirTask (
-	fullFile,
-	keyword,
-	callbackForSubDir,
-	callbackForFile,
-	queue) { 
-	return fs.stat(fullFile, (errStat, stat) => {
-		if (errStat) {
-			return callbackForFile(errStat);
-		};
-
-		if (stat && stat.isDirectory()) {
-			return queue.pushTask((done) => {
-				const fullCallback = () => {
-					callbackForSubDir();
-					done();
-				};
-				recursiveFindTask(fullFile, keyword, fullCallback, queue)
-			});
-		};
-
-		return readFileTask(fullFile, keyword, queue, callbackForFile)
-	});
-}
-
-function recursiveFindTask(dir, keyword, cb, queue) {
+function recursiveFind(dir, keyword, cb) {
 	const filesWithKeyword = [];
+
 	function finish() {
 		const finishMessage = `finished with ${filesWithKeyword.length} files in ${dir} matching ${keyword}`;
 		console.log(finishMessage);
@@ -85,53 +44,44 @@ function recursiveFindTask(dir, keyword, cb, queue) {
 
 	filesInDir.forEach(filePath => {
 		const fullFile = path.resolve(dir, filePath);
+		return fs.stat(fullFile, (errStat, stat) => {
+			if (errStat) {
+				return cb(errStat);
+			};
 
-		const callbackForFile = (fileErr, fileResp) => {
-			if (fileErr) {
-				cb(fileErr);
-			}
+			if (stat && stat.isDirectory()) {
+				const callbackForSubDir = (subdirErr, subdirRes) => {
+					if (subdirErr) {
+						cb(subdirErr);
+					} else {
+						if (subdirRes && subdirRes.length > 0) {
+							filesWithKeyword.push(...subdirRes);
+						}
+					}
+					updateCompletedStatus();
+				};
 
-			if (fileResp.hasText === true) {
-				filesWithKeyword.push(fullFile);
-			}
-			updateCompletedStatus();
-		};
+				return recursiveFind(fullFile, keyword, callbackForSubDir)
+			};
 
-
-		const callbackForSubDir = (subdirErr, subdirRes) => {
-			if (subdirErr) {
-				cb(subdirErr);
-			} else {
-				if (subdirRes && subdirRes.length > 0) {
-					filesWithKeyword.push(...subdirRes);
+			return fs.readFile(fullFile, (errRead, data) => {
+				if (errRead) {
+					return cb(errRead);
+				};
+	
+				const hasText = data.includes(keyword);
+				if (hasText) {
+					filesWithKeyword.push(fullFile);
 				}
-			}
-			updateCompletedStatus();
-		};
-
-		return processFileOrDirTask (
-			fullFile,
-			keyword,
-			callbackForSubDir,
-			callbackForFile,
-			queue)
+	
+				updateCompletedStatus();
+				return hasText;
+			});
+	
+		});
 		  
 	});
 }
-
-function recursiveFind(dir, keyword, cb) {
-	const queue = new TaskQueueEx3(MAX_CONCURRENT);
-	queue.on('error', console.error)
-	queue.on('empty', () => console.log('Download complete'))
-
-	queue.pushTask((done) => {
-		const fullCB = () => {
-			done();
-			cb();
-		};
-		recursiveFindTask(dir, keyword, fullCB, queue);
-	});
-};
 
 if (process.argv.length > 3) {
 	const directoryPath = process.argv[2];
@@ -141,7 +91,7 @@ if (process.argv.length > 3) {
 		if (err) {
 			console.error('Yikes! Error! ', err);
 		} else {
-			console.log(`Oh yeah! for keyword '${keyword}', got matches: ${JSON.stringify(res)}`);
+			console.log(`Oh yeah! for keyword '${keyword}', got ${res.length} matches: ${JSON.stringify(res)}`);
 		}
 	};
 	recursiveFind(directoryPath, keyword, cb);
