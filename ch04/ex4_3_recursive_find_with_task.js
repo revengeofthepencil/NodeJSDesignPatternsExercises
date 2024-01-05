@@ -1,3 +1,4 @@
+/* eslint-disable import/extensions */
 import fs from 'fs';
 import path from 'path';
 
@@ -21,7 +22,7 @@ careful to keep the number of parallel tasks under control!
 
 const MAX_CONCURRENT = 4;
 
-function readFileTask(fullFile, keyword, queue, cb) {
+function readFileTask(fullFile, keyword, cb) {
 	return fs.readFile(fullFile, (errRead, data) => {
 		if (errRead) {
 			return cb(errRead);
@@ -47,20 +48,21 @@ function processFileOrDirTask(
 		}
 
 		if (stat && stat.isDirectory()) {
-			return queue.pushTask(done => {
-				const fullCallback = () => {
-					callbackForSubDir();
-					done();
-				};
-				recursiveFindTask(fullFile, keyword, fullCallback, queue);
-			});
+			// eslint-disable-next-line no-use-before-define
+			return recursiveFindTask(fullFile, keyword, queue, callbackForSubDir);
 		}
 
-		return readFileTask(fullFile, keyword, queue, callbackForFile);
+		return queue.pushTask(done => {
+			const fullCallback = (err, res) => {
+				done();
+				callbackForFile(err, res);
+			};
+			readFileTask(fullFile, keyword, fullCallback);
+		});
 	});
 }
 
-function recursiveFindTask(dir, keyword, cb, queue) {
+function recursiveFindTask(dir, keyword, queue, cb) {
 	const filesWithKeyword = [];
 	function finish() {
 		const finishMessage = `finished with ${filesWithKeyword.length} files in ${dir} matching ${keyword}`;
@@ -82,7 +84,7 @@ function recursiveFindTask(dir, keyword, cb, queue) {
 		}
 	};
 
-	filesInDir.forEach(filePath => {
+	return filesInDir.forEach(filePath => {
 		const fullFile = path.resolve(dir, filePath);
 
 		const callbackForFile = (fileErr, fileResp) => {
@@ -117,15 +119,8 @@ function recursiveFindTask(dir, keyword, cb, queue) {
 function recursiveFind(dir, keyword, cb) {
 	const queue = new TaskQueueEx3(MAX_CONCURRENT);
 	queue.on('error', console.error);
-	queue.on('empty', () => console.log('Download complete'));
-
-	queue.pushTask(done => {
-		const fullCB = () => {
-			done();
-			cb();
-		};
-		recursiveFindTask(dir, keyword, fullCB, queue);
-	});
+	queue.on('empty', () => console.log('Download complete. Queue is empty'));
+	recursiveFindTask(dir, keyword, queue, cb);
 }
 
 if (process.argv.length > 3) {
@@ -136,7 +131,7 @@ if (process.argv.length > 3) {
 		if (err) {
 			console.error('Yikes! Error! ', err);
 		} else {
-			console.log(`Oh yeah! for keyword '${keyword}', got matches: ${JSON.stringify(res)}`);
+			console.log(`All set! for keyword '${keyword}', got ${res.length} matches: ${JSON.stringify(res)}`);
 		}
 	};
 	recursiveFind(directoryPath, keyword, cb);

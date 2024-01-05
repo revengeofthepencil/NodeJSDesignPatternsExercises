@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 
-class TaskQueueEx3 extends EventEmitter {
+// eslint-disable-next-line import/prefer-default-export
+export class TaskQueueEx3 extends EventEmitter {
 	constructor(concurrency) {
 		super();
 		this.concurrency = concurrency;
@@ -16,12 +17,11 @@ class TaskQueueEx3 extends EventEmitter {
 
 	next() {
 		if (this.running === 0 && this.queue.length === 0) {
-			console.log('it is empty');
 			return this.emit('empty');
 		}
 		while (this.running < this.concurrency && this.queue.length) {
+			console.log(`task thing with queue length ${this.queue.length} and running ${this.running}`);
 			const task = this.queue.shift();
-
 			task(err => {
 				if (err) {
 					this.emit('error', err);
@@ -36,5 +36,3 @@ class TaskQueueEx3 extends EventEmitter {
 		return this.running;
 	}
 }
-
-export default TaskQueueEx3;
