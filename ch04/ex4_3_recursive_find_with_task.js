@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+
 import { TaskQueueEx3 } from './TaskQueueEx3.js';
 
 /*
@@ -14,50 +15,48 @@ If no matching file is found, the callback must be invoked with an empty array.
 
 Bonus points if you make the search recursive (it looks for text files
 in any subdirectory as well). Extra bonus points if you manage to perform
-the search within different files and subdirectories in parallel, but be 
+the search within different files and subdirectories in parallel, but be
 careful to keep the number of parallel tasks under control!
 */
 
 const MAX_CONCURRENT = 4;
 
-
-function readFileTask (fullFile, keyword, queue, cb) {            
+function readFileTask(fullFile, keyword, queue, cb) {
 	return fs.readFile(fullFile, (errRead, data) => {
 		if (errRead) {
 			return cb(errRead);
-		};
+		}
 
 		const hasText = data.includes(keyword);
 		cb(null, {
-			fullFile, hasText
-		})
+			fullFile, hasText,
+		});
 		return hasText;
 	});
-  };
+}
 
-
-function processFileOrDirTask (
+function processFileOrDirTask(
 	fullFile,
 	keyword,
 	callbackForSubDir,
 	callbackForFile,
-	queue) { 
+	queue) {
 	return fs.stat(fullFile, (errStat, stat) => {
 		if (errStat) {
 			return callbackForFile(errStat);
-		};
+		}
 
 		if (stat && stat.isDirectory()) {
-			return queue.pushTask((done) => {
+			return queue.pushTask(done => {
 				const fullCallback = () => {
 					callbackForSubDir();
 					done();
 				};
-				recursiveFindTask(fullFile, keyword, fullCallback, queue)
+				recursiveFindTask(fullFile, keyword, fullCallback, queue);
 			});
-		};
+		}
 
-		return readFileTask(fullFile, keyword, queue, callbackForFile)
+		return readFileTask(fullFile, keyword, queue, callbackForFile);
 	});
 }
 
@@ -74,7 +73,7 @@ function recursiveFindTask(dir, keyword, cb, queue) {
 		return cb();
 	}
 
-	let completed = 0
+	let completed = 0;
 
 	const updateCompletedStatus = () => {
 		completed += 1;
@@ -97,41 +96,37 @@ function recursiveFindTask(dir, keyword, cb, queue) {
 			updateCompletedStatus();
 		};
 
-
 		const callbackForSubDir = (subdirErr, subdirRes) => {
 			if (subdirErr) {
 				cb(subdirErr);
-			} else {
-				if (subdirRes && subdirRes.length > 0) {
-					filesWithKeyword.push(...subdirRes);
-				}
+			} else if (subdirRes && subdirRes.length > 0) {
+				filesWithKeyword.push(...subdirRes);
 			}
 			updateCompletedStatus();
 		};
 
-		return processFileOrDirTask (
+		return processFileOrDirTask(
 			fullFile,
 			keyword,
 			callbackForSubDir,
 			callbackForFile,
-			queue)
-		  
+			queue);
 	});
 }
 
 function recursiveFind(dir, keyword, cb) {
 	const queue = new TaskQueueEx3(MAX_CONCURRENT);
-	queue.on('error', console.error)
-	queue.on('empty', () => console.log('Download complete'))
+	queue.on('error', console.error);
+	queue.on('empty', () => console.log('Download complete'));
 
-	queue.pushTask((done) => {
+	queue.pushTask(done => {
 		const fullCB = () => {
 			done();
 			cb();
 		};
 		recursiveFindTask(dir, keyword, fullCB, queue);
 	});
-};
+}
 
 if (process.argv.length > 3) {
 	const directoryPath = process.argv[2];

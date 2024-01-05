@@ -13,11 +13,9 @@ If no matching file is found, the callback must be invoked with an empty array.
 
 Bonus points if you make the search recursive (it looks for text files
 in any subdirectory as well). Extra bonus points if you manage to perform
-the search within different files and subdirectories in parallel, but be 
+the search within different files and subdirectories in parallel, but be
 careful to keep the number of parallel tasks under control!
 */
-
-const MAX_CONCURRENT = 4;
 
 function recursiveFind(dir, keyword, cb) {
 	const filesWithKeyword = [];
@@ -33,7 +31,7 @@ function recursiveFind(dir, keyword, cb) {
 		return cb();
 	}
 
-	let completed = 0
+	let completed = 0;
 
 	const updateCompletedStatus = () => {
 		completed += 1;
@@ -42,47 +40,44 @@ function recursiveFind(dir, keyword, cb) {
 		}
 	};
 
-	filesInDir.forEach(filePath => {
+	return filesInDir.forEach(filePath => {
 		const fullFile = path.resolve(dir, filePath);
 		return fs.stat(fullFile, (errStat, stat) => {
 			if (errStat) {
 				return cb(errStat);
-			};
+			}
 
 			if (stat && stat.isDirectory()) {
 				const callbackForSubDir = (subdirErr, subdirRes) => {
 					if (subdirErr) {
 						cb(subdirErr);
-					} else {
-						if (subdirRes && subdirRes.length > 0) {
-							filesWithKeyword.push(...subdirRes);
-						}
+					} else if (subdirRes && subdirRes.length > 0) {
+						filesWithKeyword.push(...subdirRes);
 					}
 					updateCompletedStatus();
 				};
 
-				return recursiveFind(fullFile, keyword, callbackForSubDir)
-			};
+				return recursiveFind(fullFile, keyword, callbackForSubDir);
+			}
 
 			return fs.readFile(fullFile, (errRead, data) => {
 				if (errRead) {
 					return cb(errRead);
-				};
-	
+				}
+
 				const hasText = data.includes(keyword);
 				if (hasText) {
 					filesWithKeyword.push(fullFile);
 				}
-	
+
 				updateCompletedStatus();
 				return hasText;
 			});
-	
 		});
-		  
 	});
 }
 
+console.log('process.argv = ', process.argv);
 if (process.argv.length > 3) {
 	const directoryPath = process.argv[2];
 	const keyword = process.argv[3];
@@ -95,4 +90,6 @@ if (process.argv.length > 3) {
 		}
 	};
 	recursiveFind(directoryPath, keyword, cb);
+} else {
+	console.error('you must provide a directory and a keyword');
 }
