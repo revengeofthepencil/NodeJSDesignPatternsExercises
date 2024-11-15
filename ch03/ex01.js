@@ -2,7 +2,9 @@
 3.1 A simple event: Modify the asynchronous FindRegex class so
 that it emits an event when the find process starts, passing the
 input files list as an argument. Hint: beware of Zalgo!
-*/import { EventEmitter } from 'events';
+*/
+
+import { EventEmitter } from 'events';
 import { readFile } from 'fs';
 
 class FindRegex extends EventEmitter {
@@ -18,6 +20,8 @@ class FindRegex extends EventEmitter {
 	}
 
 	find() {
+		process.nextTick(() => this.emit('matchstart', this.files));
+
 		// eslint-disable-next-line no-restricted-syntax
 		for (const file of this.files) {
 			readFile(file, 'utf8', (err, content) => {
@@ -40,5 +44,7 @@ findRegexInstance
 	.addFile('exfiles/fileA.txt')
 	.addFile('exfiles/fileB.json')
 	.find()
+	.on('matchstart', files => console.log(`Searching ${files.length} files: ${files.join(', ')}`))
+	.on('fileread', file => console.log(`${file} was read`))
 	.on('found', (file, match) => console.log(`Matched "${match}" in file ${file}`))
 	.on('error', err => console.error(`Error emitted ${err.message}`));
