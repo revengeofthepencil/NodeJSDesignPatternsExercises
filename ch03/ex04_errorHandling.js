@@ -9,7 +9,7 @@ event emitter. Hint: use Date.now() to get the timestamp and the
 remainder (%) operator to check whether the timestamp is divisible by 5.
 */
 
-const NUM_MS = 300;
+const NUM_MS = 500;
 
 const tickThatThing = (numberMS, callback) => {
 	const MS_PER_TICK = 50;
