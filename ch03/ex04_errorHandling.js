@@ -59,6 +59,7 @@ const tickCallback = (error, totalCount) => {
 		console.log(`total tick count = ${totalCount}`);
 	}
 };
+
 tickThatThing(NUM_MS, tickCallback)
 	.on('tick', numMs => {
 		console.log(`ticked at ${numMs}`);
