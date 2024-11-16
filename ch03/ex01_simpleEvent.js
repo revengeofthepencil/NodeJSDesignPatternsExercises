@@ -39,6 +39,7 @@ class FindRegex extends EventEmitter {
 		return this;
 	}
 }
+
 const findRegexInstance = new FindRegex(/hello \w+/);
 findRegexInstance
 	.addFile('exfiles/fileA.txt')
