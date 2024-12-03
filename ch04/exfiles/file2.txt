@@ -1,0 +1,2 @@
+This is the stuff in file 2.
+Hey, how about more stuff in file 2?

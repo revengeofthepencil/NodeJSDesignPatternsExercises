@@ -23,12 +23,12 @@ function download(url, filename, cb) {
 		if (err) {
 			return cb(err);
 		}
-		saveFile(filename, res.text, err => {
-			if (err) {
-				return cb(err);
+		return saveFile(filename, res.text, saveErr => {
+			if (saveErr) {
+				return cb(saveErr);
 			}
 			console.log(`Downloaded and saved: ${url}`);
-			cb(null, res.text);
+			return cb(null, res.text);
 		});
 	});
 }
