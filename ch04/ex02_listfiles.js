@@ -13,7 +13,7 @@ helper functions if needed.
 
 const TEST_DIR = '/tmp';
 
-const listNestedFiles = (dir, cb) => {
+function listNestedFiles(dir, cb) {
 	const fullFileArray = [];
 
 	const finish = () => {
@@ -55,7 +55,7 @@ const listNestedFiles = (dir, cb) => {
 		});
 	};
 	return iterate(0);
-};
+}
 
 const listFileCallback = (err, finalList) => {
 	console.log(`final callback! finalList = ${JSON.stringify(finalList)}`);
