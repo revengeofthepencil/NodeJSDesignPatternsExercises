@@ -61,8 +61,7 @@ function processFileOrDirTask(
 
 function recursiveFind(dir, keyword, cb) {
 	const filesWithKeyword = [];
-	let pendingTasks = 0; // Tracks active tasks
-
+	let pendingTasks = 0;
 	function finish() {
 		if (pendingTasks === 0) {
 			return cb(null, filesWithKeyword);
@@ -112,7 +111,7 @@ function recursiveFind(dir, keyword, cb) {
 		}
 
 		if (files.length === 0) {
-			return finish(); // No files, finish immediately
+			return finish();
 		}
 
 		return files.forEach(processFile);
