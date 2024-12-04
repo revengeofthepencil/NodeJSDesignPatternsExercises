@@ -30,11 +30,11 @@ const concatFiles = (files, dest, cb) => {
 	readFileAtIndex(0);
 };
 
-const srcPaths = [
+const SRC_PATHS = [
 	'exfiles/file1.txt', 'exfiles/file2.txt', 'exfiles/file3.txt',
 ];
 
-const outputFile = `/tmp/ex01output_${new Date().getTime()}.txt`;
+const OUTPUT_FILE = `/tmp/ex01output_${new Date().getTime()}.txt`;
 
 const callback = (err, res) => {
 	if (err) {
@@ -43,4 +43,4 @@ const callback = (err, res) => {
 		console.log(res);
 	}
 };
-concatFiles(srcPaths, outputFile, callback);
+concatFiles(SRC_PATHS, OUTPUT_FILE, callback);
