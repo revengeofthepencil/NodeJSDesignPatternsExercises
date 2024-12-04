@@ -61,9 +61,15 @@ function processFileOrDirTask(
 
 function recursiveFind(dir, keyword, cb) {
 	const filesWithKeyword = [];
-	let pendingTasks = 0;
+	const filesInDir = fs.readdirSync(dir);
+	if (filesInDir.length === 0) {
+		return cb();
+	}
+
+	let fileProcessedCount = 0;
 	function finish() {
-		if (pendingTasks === 0) {
+		if (fileProcessedCount === filesInDir.length) {
+			console.log(`done with ${dir}, found ${filesWithKeyword.length} filesWithKeyword`);
 			return cb(null, filesWithKeyword);
 		}
 		return null;
@@ -71,10 +77,9 @@ function recursiveFind(dir, keyword, cb) {
 
 	function processFile(filePath) {
 		const fullFile = path.resolve(dir, filePath);
-		pendingTasks += 1;
 
 		const callbackForFile = (fileErr, fileResp) => {
-			pendingTasks -= 1;
+			fileProcessedCount += 1;
 
 			if (fileErr) {
 				console.error(`Error reading file ${fullFile}: ${fileErr}`);
@@ -86,7 +91,7 @@ function recursiveFind(dir, keyword, cb) {
 		};
 
 		const callbackForSubDir = (subdirErr, subdirRes) => {
-			pendingTasks -= 1;
+			fileProcessedCount += 1;
 
 			if (subdirErr) {
 				console.error(`Error processing subdirectory ${fullFile}: ${subdirErr}`);
@@ -105,17 +110,7 @@ function recursiveFind(dir, keyword, cb) {
 		);
 	}
 
-	fs.readdir(dir, (err, files) => {
-		if (err) {
-			return cb(err);
-		}
-
-		if (files.length === 0) {
-			return finish();
-		}
-
-		return files.forEach(processFile);
-	});
+	return filesInDir.forEach(currentFile => processFile(currentFile));
 }
 
 const directoryPath = process.argv.length > 2 ? process.argv[2] : TEST_DIR;
