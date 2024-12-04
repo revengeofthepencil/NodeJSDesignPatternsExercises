@@ -24,8 +24,7 @@ function recursiveFind(dir, keyword, cb) {
 	const filesWithKeyword = [];
 
 	function finish() {
-		const finishMessage = `finished with ${filesWithKeyword.length} files in ${dir} matching ${keyword}`;
-		console.log(finishMessage);
+		console.log(`finished with ${filesWithKeyword.length} files in ${dir} matching ${keyword}`);
 		cb(null, filesWithKeyword);
 	}
 
@@ -34,11 +33,11 @@ function recursiveFind(dir, keyword, cb) {
 		return cb();
 	}
 
-	let completed = 0;
+	let completedCount = 0;
 
-	const updateCompletedStatus = () => {
-		completed += 1;
-		if (completed === filesInDir.length) {
+	const updateCompletedCount = () => {
+		completedCount += 1;
+		if (completedCount === filesInDir.length) {
 			finish();
 		}
 	};
@@ -57,7 +56,7 @@ function recursiveFind(dir, keyword, cb) {
 					} else if (subdirRes && subdirRes.length > 0) {
 						filesWithKeyword.push(...subdirRes);
 					}
-					updateCompletedStatus();
+					updateCompletedCount();
 				};
 
 				return recursiveFind(fullFile, keyword, callbackForSubDir);
@@ -73,7 +72,7 @@ function recursiveFind(dir, keyword, cb) {
 					filesWithKeyword.push(fullFile);
 				}
 
-				updateCompletedStatus();
+				updateCompletedCount();
 				return hasText;
 			});
 		});
