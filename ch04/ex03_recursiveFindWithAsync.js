@@ -52,14 +52,14 @@ function processFileOrDirTask(
 
 		if (stat && stat.isDirectory()) {
 			// eslint-disable-next-line no-use-before-define
-			return recursiveFindTask(fullFile, keyword, callbackForSubDir);
+			return recursiveFind(fullFile, keyword, callbackForSubDir);
 		}
 
 		return readFileTask(fullFile, keyword, callbackForFile);
 	});
 }
 
-function recursiveFindTask(dir, keyword, cb) {
+function recursiveFind(dir, keyword, cb) {
 	const filesWithKeyword = [];
 	let pendingTasks = 0; // Tracks active tasks
 
@@ -134,7 +134,7 @@ const cb = (err, res) => {
 };
 
 async.parallelLimit(
-	[callback => recursiveFindTask(directoryPath, keyword, callback)],
+	[callback => recursiveFind(directoryPath, keyword, callback)],
 	MAX_CONCURRENT,
 	cb
 );
