@@ -65,9 +65,7 @@ function recursiveFind(dir, keyword, cb) {
 
 	function finish() {
 		if (pendingTasks === 0) {
-			const flattenedArray = filesWithKeyword.flat(Infinity); // Ensure fully flattened
-			console.log(`Finished with ${filesWithKeyword.length} files in ${dir} matching '${keyword}'`);
-			return cb(null, flattenedArray);
+			return cb(null, filesWithKeyword);
 		}
 		return null;
 	}
