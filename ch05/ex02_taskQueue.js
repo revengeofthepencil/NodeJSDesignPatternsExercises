@@ -10,7 +10,9 @@ import { TaskQueueEx02 } from './TaskQueueEx02.js';
 const MAX_CONCURRENT = 3;
 
 const processTask = async taskName => {
-	console.log(`Ahoy! Starting task: ${taskName}`);
+	if (taskName.includes('2')) {
+		throw new Error(`This is a test error with task ${taskName}`);
+	}
 
 	// random delay between 500ms and 2500ms
 	const delay = Math.floor(Math.random() * 2000) + 500;
@@ -25,5 +27,8 @@ for (let i = 1; i <= 10; i++) {
 }
 
 const queue = new TaskQueueEx02(MAX_CONCURRENT);
-tasks.forEach(currentTask => queue.runTask(currentTask).then(res => console.log(res)));
+tasks.forEach(currentTask => queue.runTask(currentTask)
+	.then(res => console.log(res))
+	.catch(err => console.log('Caught error:', err))
+);
 queue.on('empty', () => console.log('Task list complete. Queue is empty'));
