@@ -1,16 +1,17 @@
+/* eslint-disable import/extensions */
 /*
-5.2 TaskQueue with promises: Migrate the TaskQueue class internals
-from promises to async/await where possible. Hint: you won't be
-able to use async/await everywhere.
+5.3 Producer-consumer with promises: Update the TaskQueuePC class internal
+methods so that they use just promises, removing any use of the async/await
+syntax. Hint: the infinite loop must become an asynchronous recursion. Beware
+of the recursive Promise resolution memory leak!
 */
 
-/* eslint-disable import/extensions */
-import { TaskQueueEx02 } from './TaskQueueEx02.js';
+import { TaskQueuePC } from './TaskQueuePCEx03.js';
 
 const MAX_CONCURRENT = 3;
 
 const processTask = async taskName => {
-	console.log(`Ahoy! Starting task: ${taskName}`);
+	console.log(`Hot diggity! Starting task: ${taskName}`);
 
 	// random delay between 500ms and 2500ms
 	const delay = Math.floor(Math.random() * 2000) + 500;
@@ -24,6 +25,5 @@ for (let i = 1; i <= 10; i++) {
 	tasks.push(() => processTask(currentName));
 }
 
-const queue = new TaskQueueEx02(MAX_CONCURRENT);
+const queue = new TaskQueuePC(MAX_CONCURRENT);
 tasks.forEach(currentTask => queue.runTask(currentTask).then(res => console.log(res)));
-queue.on('empty', () => console.log('Task list complete. Queue is empty'));
