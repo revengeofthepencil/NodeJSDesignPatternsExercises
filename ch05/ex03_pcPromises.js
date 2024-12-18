@@ -8,7 +8,7 @@ of the recursive Promise resolution memory leak!
 
 import { TaskQueuePC } from './TaskQueuePCEx03.js';
 
-const MAX_CONCURRENT = 3;
+const MAX_CONCURRENT = 5;
 
 const processTask = async taskName => {
 	console.log(`Hot diggity! Starting task: ${taskName}`);
@@ -20,7 +20,7 @@ const processTask = async taskName => {
 };
 
 const tasks = [];
-for (let i = 1; i <= 10; i++) {
+for (let i = 1; i <= 15; i++) {
 	const currentName = `Task #${i}`;
 	tasks.push(() => processTask(currentName));
 }

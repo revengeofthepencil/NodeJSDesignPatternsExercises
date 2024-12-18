@@ -10,17 +10,18 @@ export class TaskQueuePC {
 		}
 	}
 
-	async consumer() {
-		while (true) {
-			try {
-				// eslint-disable-next-line no-await-in-loop
-				const task = await this.getNextTask();
-				// eslint-disable-next-line no-await-in-loop
-				await task();
-			} catch (err) {
-				console.error(err);
-			}
-		}
+	consumer() {
+		const processNextTask = () => {
+			this.getNextTask()
+				.then(task => task())
+				.then(() => processNextTask())
+				.catch(err => {
+					console.error(err);
+					processNextTask();
+				});
+		};
+
+		processNextTask();
 	}
 
 	getNextTask() {
