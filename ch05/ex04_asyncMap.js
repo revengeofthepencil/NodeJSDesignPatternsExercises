@@ -19,13 +19,13 @@ const MAX_CONCURRENT = 5;
 const mapAsync = (iterable, callback, concurrency) => {
 	const resultMap = {};
 	const iterableLength = iterable.length;
-	const arrayOfIndecies = [];
+	const arrayOfIndexes = [];
 	for (let i = 0; i < iterableLength; i++) {
-		arrayOfIndecies.push(i);
+		arrayOfIndexes.push(i);
 	}
 	console.log(`iterableLength = ${iterableLength}, concurrency = ${concurrency}`);
 	const runNextTask = async () => {
-		const nextIdx = arrayOfIndecies.shift();
+		const nextIdx = arrayOfIndexes.shift();
 		const nextTask = iterable.length > nextIdx ? iterable[nextIdx] : null;
 		if (nextTask) {
 			const taskRes = await nextTask();
@@ -35,7 +35,7 @@ const mapAsync = (iterable, callback, concurrency) => {
 				const sortedKeys = resultMapKeys.sort((a, b) => a - b);
 				const sortedValues = sortedKeys.map(key => resultMap[key]);
 				callback(sortedValues);
-			} else if (arrayOfIndecies.length > 0) {
+			} else if (arrayOfIndexes.length > 0) {
 				runNextTask();
 			}
 		}
