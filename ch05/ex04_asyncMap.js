@@ -24,8 +24,10 @@ const mapAsync = (iterable, callback, concurrency) => {
 		arrayOfIndexes.push(i);
 	}
 	console.log(`iterableLength = ${iterableLength}, concurrency = ${concurrency}`);
-	const runNextTask = async () => {
+
+	const runNextTask = async runnerId => {
 		const nextIdx = arrayOfIndexes.shift();
+		console.log(`runner ${runnerId} is checking index ${nextIdx}`);
 		const nextTask = iterable.length > nextIdx ? iterable[nextIdx] : null;
 		if (nextTask) {
 			const taskRes = await nextTask();
@@ -36,18 +38,19 @@ const mapAsync = (iterable, callback, concurrency) => {
 				const sortedValues = sortedKeys.map(key => resultMap[key]);
 				callback(sortedValues);
 			} else if (arrayOfIndexes.length > 0) {
-				runNextTask();
+				runNextTask(runnerId);
 			}
 		}
 	};
 
 	for (let i = 0; i < concurrency; i++) {
-		runNextTask();
+		const runnerId = i + 1;
+		runNextTask(runnerId);
 	}
 };
 
 const processTask = async taskName => {
-	console.log(`Hot diggity! Starting task: ${taskName}`);
+	console.log(`Ahoy! Starting task: ${taskName}`);
 
 	// random delay between 500ms and 2500ms
 	const delay = Math.floor(Math.random() * 2000) + 500;
