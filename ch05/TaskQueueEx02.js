@@ -35,6 +35,8 @@ export class TaskQueueEx02 extends EventEmitter {
 			try {
 				// eslint-disable-next-line no-await-in-loop
 				await task();
+			} catch (error) {
+				this.emit('error', error);
 			} finally {
 				this.running--;
 				this.next();
