@@ -57,11 +57,10 @@ const compressFile = async (filePath, outputDir, compressFileCallback) => {
 		def: createDeflate,
 	};
 
-	const inputStream = createReadStream(filePath);
-
 	const totalLength = Object.keys(compressionOpts).length;
 	let completed = 0;
 	Object.entries(compressionOpts).forEach(([ext, compressionFn]) => {
+		const inputStream = createReadStream(filePath);
 		const outputFilePath = `${outputPath}.${ext}`;
 		const completionCallback = runtime => {
 			const finalSize = fs.statSync(outputFilePath).size;
@@ -76,7 +75,8 @@ const compressFile = async (filePath, outputDir, compressFileCallback) => {
 		const timer = createCompressionTimer(ext, completionCallback);
 		inputStream.pipe(compressionFn())
 			.pipe(timer)
-			.pipe(createWriteStream(outputFilePath)).on('finish', () => {
+			.pipe(createWriteStream(outputFilePath))
+			.on('finish', () => {
 				completed += 1;
 				timer.end();
 				console.log(`finish for ${ext}. completed = ${completed}, totalLength = ${totalLength}`);
@@ -84,6 +84,9 @@ const compressFile = async (filePath, outputDir, compressFileCallback) => {
 					console.log('all set');
 					compressFileCallback(compressionResults);
 				}
+			})
+			.on('error', err => {
+				console.error(`Error during ${ext} compression:`, err);
 			});
 	});
 };
@@ -94,6 +97,6 @@ const dest = process.argv[3] || DEFAULT_DEST;
 console.log(`filname = ${filePath}, dest = ${dest}`);
 
 const compressFileCallback = results => {
-	console.log(`results = ${JSON.stringify(results)}`);
+	console.log(`results = ${JSON.stringify(results, null, 2)}`);
 };
 compressFile(filePath, dest, compressFileCallback);
