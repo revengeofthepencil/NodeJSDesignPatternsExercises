@@ -67,6 +67,7 @@ const compressFile = async (filePath, outputDir, compressFileCallback) => {
 			const compressionPct = calculateCompressionPercentage(initSize, finalSize);
 			compressionResults[ext] = {
 				runtime,
+				initSize,
 				finalSize,
 				compressionPct,
 			};
