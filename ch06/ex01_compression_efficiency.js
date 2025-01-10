@@ -9,31 +9,7 @@ that we made some important performance considerations when we discussed it earl
 import { createGzip, createBrotliCompress, createDeflate } from 'zlib';
 import fs, { createReadStream, createWriteStream } from 'fs';
 import path from 'path';
-import { PassThrough } from 'stream';
 import { performance } from 'perf_hooks';
-
-const createCompressionTimer = (name, completionCallback) => {
-	const monitor = new PassThrough();
-
-	let start;
-
-	// Capture start time when the first chunk is processed
-	monitor.on('pipe', () => {
-		start = performance.now();
-		console.log(`${name} compression started at ${start} ms`);
-	});
-
-	monitor.on('finish', () => {
-		const end = performance.now();
-		const runTime = end - start;
-		console.log(`${name} step took ${runTime} ms. start = ${start}`);
-		if (completionCallback) {
-			completionCallback(runTime);
-		}
-	});
-
-	return monitor;
-};
 
 const calculateCompressionPercentage = (originalSize, compressedSize) => {
 	if (!originalSize || originalSize === 0) {
@@ -60,26 +36,32 @@ const compressFile = async (filePath, outputDir, compressFileCallback) => {
 	const totalLength = Object.keys(compressionOpts).length;
 	let completed = 0;
 	Object.entries(compressionOpts).forEach(([ext, compressionFn]) => {
+		let start;
+		let runTime;
+
 		const inputStream = createReadStream(filePath);
 		const outputFilePath = `${outputPath}.${ext}`;
-		const completionCallback = runtime => {
-			const finalSize = fs.statSync(outputFilePath).size;
-			const compressionPct = calculateCompressionPercentage(initSize, finalSize);
-			compressionResults[ext] = {
-				runtime,
-				initSize,
-				finalSize,
-				compressionPct,
-			};
-		};
 
-		const timer = createCompressionTimer(ext, completionCallback);
-		inputStream.pipe(compressionFn())
-			.pipe(timer)
-			.pipe(createWriteStream(outputFilePath))
+		inputStream.pipe(compressionFn()
+			.on('pipe', () => {
+				start = performance.now();
+			})
 			.on('finish', () => {
+				const end = performance.now();
+				runTime = end - start;
+			})
+
+		).pipe(createWriteStream(outputFilePath))
+			.on('finish', () => {
+				const finalSize = fs.statSync(outputFilePath).size;
+				const compressionPct = calculateCompressionPercentage(initSize, finalSize);
+				compressionResults[ext] = {
+					runTime,
+					initSize,
+					finalSize,
+					compressionPct,
+				};
 				completed += 1;
-				timer.end();
 				console.log(`finish for ${ext}. completed = ${completed}, totalLength = ${totalLength}`);
 				if (completed === totalLength) {
 					console.log('all set');
