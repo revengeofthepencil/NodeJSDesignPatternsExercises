@@ -13,8 +13,10 @@
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.0",
     "mkdirp": "^0.5.5",
+    "perf_hooks": "^0.0.1",
     "slug": "^8.2.3",
-    "superagent": "^8.1.2"
+    "superagent": "^8.1.2",
+    "zlib": "^1.0.5"
   },
   "engines": {
     "node": ">=14"

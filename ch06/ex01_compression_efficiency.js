@@ -74,7 +74,7 @@ const compressFile = async (filePath, outputDir, compressFileCallback) => {
 		};
 
 		const timer = createCompressionTimer(ext, completionCallback);
-		return inputStream.pipe(compressionFn())
+		inputStream.pipe(compressionFn())
 			.pipe(timer)
 			.pipe(createWriteStream(outputFilePath)).on('finish', () => {
 				completed += 1;
