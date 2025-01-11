@@ -16,7 +16,7 @@ export class CountPerCrimCategory extends Transform {
 		const valueNumeric = Number.parseInt(value, 10);
 		this.readLineCount += 1;
 		if (this.readLineCount % 100000 === 0) {
-			console.log(`readLineCount = ${this.readLineCount}, majorCat = ${majorCat}`);
+			console.log(`readLineCount in CountPerCrimCategory = ${this.readLineCount}, majorCat = ${majorCat}`);
 		}
 		if (!Number.isNaN(valueNumeric) && valueNumeric > 0) {
 			if (!this.crimesPerCategory[majorCat]) {

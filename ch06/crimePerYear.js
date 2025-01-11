@@ -16,7 +16,7 @@ export class CrimePerYear extends Transform {
 		const valueNumeric = Number.parseInt(value, 10);
 		this.readLineCount += 1;
 		if (this.readLineCount % 100000 === 0) {
-			console.log(`readLineCount = ${this.readLineCount}, year = ${year}, value ${value}`);
+			console.log(`readLineCount in CrimePerYear = ${this.readLineCount}, year = ${year}, value ${value}`);
 		}
 		if (!Number.isNaN(valueNumeric) && valueNumeric > 0) {
 			if (!(this.crimesPerYear[year])) {

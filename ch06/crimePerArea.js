@@ -17,7 +17,7 @@ export class CrimePerArea extends Transform {
 		this.readLineCount += 1;
 		const fullName = `${majorCat}: ${minorCat}`;
 		if (this.readLineCount % 100000 === 0) {
-			console.log(`readLineCount = ${this.readLineCount}, year = ${year}, borough = ${borough}, majorCat = ${majorCat}, fullName = ${fullName}`);
+			console.log(`readLineCount in CrimePerArea = ${this.readLineCount}, year = ${year}, borough = ${borough}, majorCat = ${majorCat}, fullName = ${fullName}`);
 		}
 		if (!Number.isNaN(valueNumeric) && valueNumeric > 0) {
 			if (!(this.crimesPerArea[borough])) {

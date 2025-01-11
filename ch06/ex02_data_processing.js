@@ -15,7 +15,7 @@ one pipeline; you could build very specialized pipelines (for example, one per q
 use the fork pattern to distribute the parsed data across them.
 */
 import { createReadStream } from 'fs';
-import { pipeline, Transform } from 'stream';
+import { pipeline, Transform, PassThrough } from 'stream';
 
 import { parse } from 'csv-parse';
 
@@ -35,23 +35,29 @@ const objectToString = new Transform({
 });
 
 const answerCrimeQuestions = () => {
-	const csvStream = createReadStream(CSV_PATH)
-		.pipe(parse({ columns: true }));
-
 	const crimePerAreaAggregator = new CrimePerArea();
 	const crimePerYearAggregator = new CrimePerYear();
 	const countPerCatAggregator = new CountPerCrimCategory();
+	// PassThrough to fork the data stream
+	const passThrough = new PassThrough({ objectMode: true });
+	pipeline(
+		createReadStream(CSV_PATH),
+		parse({ columns: true }),
+		// fork that thing!
+		passThrough,
+		err => err && console.error('Pipeline failed:', err)
+	);
 
 	[crimePerYearAggregator, crimePerAreaAggregator, countPerCatAggregator].forEach(crimeAgg => {
 		pipeline(
-			csvStream,
+			passThrough,
 			crimeAgg,
 			objectToString,
 			err => {
 				if (err) {
 					console.error('Uh oh. Pipeline failed:', err);
 				} else {
-					console.log('Woo hoo! Pipeline succeeded!');
+					console.log('Woo hoo! Pipeline succeeded');
 				}
 			}
 		);
