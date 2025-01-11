@@ -13,3 +13,12 @@ which can help you answer the preceding questions. Also, you don't need to do ev
 one pipeline; you could build very specialized pipelines (for example, one per question) and
 use the fork pattern to distribute the parsed data across them.
 */
+import parse from 'csv-parse'
+
+const CSV_PATH = '/Users/awalker/tester/london_crime_by_lsoa.csv';
+
+const answerCrimeQuestions = () => {
+
+};
+
+answerCrimeQuestions();
