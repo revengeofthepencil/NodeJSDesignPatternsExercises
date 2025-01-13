@@ -5,7 +5,7 @@ import { createDecipheriv, randomBytes } from 'crypto';
 
 const SERVER_PORT = 9090;
 const OUTPUT_DIR = '/tmp';
-const DEBUG_KEY = null; // 'd32c5afca6151e0b00c629470e86b76667e0920bca1fd05b';
+const DEBUG_KEY = 'd32c5afca6151e0b00c629470e86b76667e0920bca1fd05b';
 
 const secretServer = DEBUG_KEY ? Buffer.from(DEBUG_KEY, 'hex') : randomBytes(24);
 console.log(`Generated secret: ${secretServer.toString('hex')}`);

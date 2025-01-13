@@ -3,7 +3,7 @@ import { basename } from 'path';
 import { createConnection } from 'net';
 import { createCipheriv, randomBytes } from 'crypto';
 
-const DEBUG_KEY = null; // 'd32c5afca6151e0b00c629470e86b76667e0920bca1fd05b';
+const DEBUG_KEY = 'd32c5afca6151e0b00c629470e86b76667e0920bca1fd05b';
 
 const key = DEBUG_KEY || process.argv[2];
 if (!key || key.length !== 48) {
@@ -27,20 +27,16 @@ filePaths.forEach(filePath => {
 		const readStream = createReadStream(filePath)
 			.pipe(createCipheriv('aes192', secret, iv));
 
-		// Create metadata buffer (1 byte for filename length, filename length, and IV length)
+		// Create metadata buffer: 1 byte for filename length, filename length, and iv length
 		const metadata = Buffer.alloc(1 + filenameLength + iv.length);
-		// filename length
 		metadata.writeUInt8(filenameLength, 0);
 
-		// filename
 		metadata.write(filename, 1, 'utf8');
-		// iv
 
 		iv.copy(metadata, 1 + filenameLength);
 
-		// Write the metadata to the server
+		// Write the metadata to the server, followed by the real data
 		client.write(metadata);
-
 		readStream.pipe(client);
 	});
 
