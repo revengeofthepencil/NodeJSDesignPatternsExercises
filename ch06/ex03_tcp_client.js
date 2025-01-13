@@ -1,9 +1,6 @@
-import { request } from 'http';
-import { createGzip } from 'zlib';
 import { createReadStream } from 'fs';
 import { basename } from 'path';
-import { fork } from 'child_process';
-import { connect, createConnection } from 'net';
+import { createConnection } from 'net';
 import { createCipheriv, randomBytes } from 'crypto';
 
 const key = process.argv[2];
