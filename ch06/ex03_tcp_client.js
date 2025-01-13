@@ -3,11 +3,15 @@ import { basename } from 'path';
 import { createConnection } from 'net';
 import { createCipheriv, randomBytes } from 'crypto';
 
-const key = process.argv[2];
+const DEBUG_KEY = null; // 'd32c5afca6151e0b00c629470e86b76667e0920bca1fd05b';
+
+const key = DEBUG_KEY || process.argv[2];
 if (!key || key.length !== 48) {
 	console.error('Error: The key must be a 48-character hexadecimal string.');
 	process.exit(1);
 }
+
+console.log(`key = ${key}`);
 
 const filePaths = process.argv.slice(3);
 const secret = Buffer.from(key, 'hex');

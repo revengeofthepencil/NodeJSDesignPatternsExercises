@@ -5,14 +5,16 @@ import { createDecipheriv, randomBytes } from 'crypto';
 
 const SERVER_PORT = 9090;
 const OUTPUT_DIR = '/tmp';
+const DEBUG_KEY = null; // 'd32c5afca6151e0b00c629470e86b76667e0920bca1fd05b';
 
-const secretServer = randomBytes(24);
+const secretServer = DEBUG_KEY ? Buffer.from(DEBUG_KEY, 'hex') : randomBytes(24);
 console.log(`Generated secret: ${secretServer.toString('hex')}`);
 
 const server = createServer(socket => {
 	console.log('Client connected');
 	let filename = null;
 	let fileStream = null;
+	let decipher = null;
 
 	socket.on('data', chunk => {
 		if (!filename) {
@@ -27,25 +29,25 @@ const server = createServer(socket => {
 			fileStream = createWriteStream(destFilename);
 
 			// ok, we've got the filname, so the data to write should be everything else and decrypting
-			const decipher = createDecipheriv('aes192', secretServer, iv);
+			decipher = createDecipheriv('aes192', secretServer, iv);
 
 			const remainingData = chunk.slice(1 + filenameLength + 16);
 			decipher.write(remainingData);
 			decipher.pipe(fileStream);
 		} else {
 			// Write file content
-			fileStream.write(chunk);
+			decipher.write(chunk);
 		}
 	});
 
 	socket.on('end', () => {
 		console.log(`File transfer complete: ${filename}`);
-		if (fileStream) fileStream.end();
+		if (decipher) decipher.end();
 	});
 
 	socket.on('error', err => {
 		console.error('Error:', err.message);
-		if (fileStream) fileStream.close();
+		if (decipher) decipher.destroy();
 	});
 });
 
