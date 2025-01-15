@@ -41,6 +41,7 @@ function demultiplexChannel(source) {
 			destinations[currentChannel].write(chunk);
 			currentChannel = null;
 			currentLength = null;
+			return chunk;
 		})
 		.on('end', () => {
 			Object.values(destinations).forEach(destination => destination.end());
