@@ -5,7 +5,7 @@ import { createDecipheriv, randomBytes } from 'crypto';
 import { pipeline } from 'stream';
 
 const SERVER_PORT = 9090;
-const OUTPUT_DIR = '/tmp/mux_out';
+const OUTPUT_DIR = '/tmp';
 const DEBUG_KEY = 'd32c5afca6151e0b00c629470e86b76667e0920bca1fd05b';
 const TRANSFER_TYPES = {
 	METADATA: 0,
@@ -33,32 +33,30 @@ function demultiplexChannel(source) {
 				? buffer.readUInt8(2)
 				: buffer.readUInt32BE(2);
 
-			console.log(`Header: Channel = ${currentChannel}, Type = ${currentType}, Length = ${currentLength}`);
-			console.log(`Buffer length: ${buffer.length}`);
+			console.log(`Header: Channel = ${currentChannel}, Type = ${currentType}, Length = ${currentLength}, buffer.length = ${buffer.length}`);
 
 			if (currentType === TRANSFER_TYPES.METADATA) {
 				// Metadata packet requires: header (6 bytes) + filename + IV
 				const metadataLength = 3 + currentLength + 16;
 
 				if (buffer.length < metadataLength) {
-					console.log(`Insufficient data for metadata. Expected: ${metadataLength}, Got: ${buffer.length}`);
-					break; // Wait for the full metadata packet
+					// we don't have the full set of data in the buffer. hold up
+					break;
 				}
 
-				// Extract metadata
 				const filenameLength = buffer.readUInt8(2);
 				const filename = buffer.toString('utf8', 3, 3 + filenameLength);
 				const iv = buffer.slice(3 + filenameLength, 3 + filenameLength + 16);
 				console.log(`Received metadata: Channel = ${currentChannel}, File = ${filename}, IV = ${iv.toString('hex')}`);
 
-				// Setup decryption and file stream
+				// build decryption and file stream
 				const destFilename = join(OUTPUT_DIR, filename);
 				const fileStream = createWriteStream(destFilename);
 				const decipher = createDecipheriv('aes192', secretServer, iv);
 
 				destinations[currentChannel] = { decipher, fileStream };
 
-				// Pipe the decipher stream into the file stream
+				// pipe into the file stream
 				pipeline(decipher, fileStream, err => {
 					if (err) {
 						console.error(`Error during pipeline: ${err.message}`);
@@ -67,40 +65,35 @@ function demultiplexChannel(source) {
 					}
 				});
 
-				// Remove metadata packet from the buffer
+				// drop metadata packet from the buffer
 				buffer = buffer.slice(metadataLength);
 				console.log(`Buffer length after metadata: ${buffer.length}`);
 			} else if (currentType === TRANSFER_TYPES.FILE) {
-				// Check if the full payload is available
+				// is the payload available?
 				if (buffer.length < 6 + currentLength) {
-					console.log(`Insufficient data for file payload. Expected: ${6 + currentLength}, Got: ${buffer.length}`);
+					console.log(`Not enough data for file payload. Expected: ${6 + currentLength}, got: ${buffer.length}`);
 					break;
 				}
 
-				// Handle file data
+				// woo hoo! We have the file data
 				const fileChunk = buffer.slice(6, 6 + currentLength);
 				if (destinations[currentChannel]) {
-					if (destinations[currentChannel]) {
-						const { decipher } = destinations[currentChannel];
-						decipher.write(fileChunk);
-					} else {
-						console.error(`No destination for Channel ${currentChannel}`);
-					}
+					const { decipher } = destinations[currentChannel];
+					decipher.write(fileChunk);
 				} else {
-					console.error(`No destination for Channel ${currentChannel}`);
+					console.error(`Whoa! No destination for Channel ${currentChannel}`);
 				}
 
-				// Remove file packet from the buffer
+				// drop file packet from the buffer
 				buffer = buffer.slice(6 + currentLength);
 			} else {
 				console.error(`Unknown transfer type: ${currentType}`);
-				buffer = buffer.slice(6 + currentLength); // Skip unknown packet
 			}
 		}
 	});
 
 	source.on('end', () => {
-		// close all streams, both the decipher and file
+		// close all decipher streams
 		Object.values(destinations).forEach(({ decipher }) => {
 			decipher.end();
 		});
