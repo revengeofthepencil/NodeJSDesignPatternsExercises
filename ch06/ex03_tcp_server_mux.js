@@ -13,7 +13,7 @@ const TRANSFER_TYPES = {
 };
 
 const secretServer = DEBUG_KEY ? Buffer.from(DEBUG_KEY, 'hex') : randomBytes(24);
-console.log(`Generated secret: ${secretServer.toString('hex')}`);
+console.log(`secretServer: ${secretServer.toString('hex')}`);
 
 function demultiplexChannel(source) {
 	let buffer = Buffer.alloc(0);
