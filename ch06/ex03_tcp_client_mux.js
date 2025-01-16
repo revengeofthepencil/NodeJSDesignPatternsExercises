@@ -21,7 +21,7 @@ const filePaths = process.argv.slice(3);
 const secret = Buffer.from(key, 'hex');
 const iv = randomBytes(16);
 const SERVER_PORT = 9090;
-console.log(`iv = ${iv}`);
+console.log(`iv = ${iv.toString('hex')}`);
 
 function multiplexChannels(sources, destination) {
 	let openChannels = sources.length;
