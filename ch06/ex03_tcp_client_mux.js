@@ -29,6 +29,18 @@ function multiplexChannels(sources, destination) {
 		const currentSource = sources[i];
 		const { readStream, filename } = currentSource;
 		const filenameLength = Buffer.byteLength(filename);
+
+		// Create metadata buffer: 1 byte for channel, 1 byte for type,
+		// 1 byte for filename length, filename length, and iv length
+		const metadata = Buffer.alloc(1 + 1 + 1 + filenameLength + iv.length);
+		metadata.writeUInt8(i, 0);
+		metadata.writeUInt8(TRANSFER_TYPES.METADATA, 1);
+		metadata.writeUInt8(filenameLength, 2);
+		metadata.write(filename, 3, 'utf8');
+		iv.copy(metadata, 3 + filenameLength);
+		console.log(`sending metadata to channel ${i} with file name ${filename}`);
+		destination.write(metadata);
+
 		console.log(`source ${i} has filename ${filename} with length ${filenameLength}`);
 		readStream.on('readable', function () {
 			let chunk;
