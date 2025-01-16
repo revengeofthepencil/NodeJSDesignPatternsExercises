@@ -1,3 +1,4 @@
+/* eslint-disable no-loop-func */
 import { createReadStream } from 'fs';
 import { basename } from 'path';
 import { connect } from 'net';
@@ -56,7 +57,8 @@ function multiplexChannels(sources, destination) {
 			}
 		})
 			.on('end', () => {
-				if (--openChannels === 0) {
+				openChannels -= 1;
+				if (openChannels === 0) {
 					destination.end();
 				}
 			});
