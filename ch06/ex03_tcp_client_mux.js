@@ -5,6 +5,7 @@ import { connect } from 'net';
 import { createCipheriv, randomBytes } from 'crypto';
 
 const DEBUG_KEY = 'd32c5afca6151e0b00c629470e86b76667e0920bca1fd05b';
+const SERVER_PORT = 9090;
 const TRANSFER_TYPES = {
 	METADATA: 0,
 	FILE: 1,
@@ -21,7 +22,6 @@ console.log(`key = ${key}`);
 const filePaths = process.argv.slice(3);
 const secret = Buffer.from(key, 'hex');
 const iv = randomBytes(16);
-const SERVER_PORT = 9090;
 console.log(`iv = ${iv.toString('hex')}`);
 
 function multiplexChannels(sources, destination) {
