@@ -4,7 +4,10 @@ import { connect } from 'net';
 import { createCipheriv, randomBytes } from 'crypto';
 
 const DEBUG_KEY = 'd32c5afca6151e0b00c629470e86b76667e0920bca1fd05b';
-const DEFAULT_TYPE = 1;
+const TRANSFER_TYPES = {
+	METADATA: 0,
+	FILE: 1,
+};
 
 const key = DEBUG_KEY || process.argv[2];
 if (!key || key.length !== 48) {
@@ -33,7 +36,7 @@ function multiplexChannels(sources, destination) {
 			while ((chunk = this.read()) !== null) {
 				const outBuff = Buffer.alloc(1 + 1 + 4 + chunk.length);
 				outBuff.writeUInt8(i, 0);
-				outBuff.writeUInt8(DEFAULT_TYPE, 1);
+				outBuff.writeUInt8(TRANSFER_TYPES.FILE, 1);
 				outBuff.writeUInt32BE(chunk.length, 2);
 				chunk.copy(outBuff, 6);
 				console.log(`Sending packet to channel: ${i}`);

@@ -1,11 +1,15 @@
 import { createWriteStream } from 'fs';
 import { createServer } from 'net';
 import { join } from 'path';
-import { createDecipheriv, randomBytes } from 'crypto';
+import { randomBytes } from 'crypto';
 
 const SERVER_PORT = 9090;
 const OUTPUT_DIR = '/tmp';
 const DEBUG_KEY = 'd32c5afca6151e0b00c629470e86b76667e0920bca1fd05b';
+const TRANSFER_TYPES = {
+	METADATA: 0,
+	FILE: 1,
+};
 
 const secretServer = DEBUG_KEY ? Buffer.from(DEBUG_KEY, 'hex') : randomBytes(24);
 console.log(`Generated secret: ${secretServer.toString('hex')}`);
@@ -38,7 +42,7 @@ function demultiplexChannel(source) {
 				destinations[currentChannel] = createWriteStream(join(OUTPUT_DIR, fileName));
 			}
 
-			if (currentType === 1) {
+			if (currentType === TRANSFER_TYPES.FILE) {
 				// Write data to the destination file
 				destinations[currentChannel].write(payload);
 			} else {
