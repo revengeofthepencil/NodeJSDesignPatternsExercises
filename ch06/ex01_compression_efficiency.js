@@ -1,32 +1,53 @@
-/*
-6.1 Data compression efficiency: Write a command-line script that takes
-a file as input and compresses it using the different algorithms available in
-the zlib module (Brotli, Deflate, Gzip). You want to produce a summary table
-that compares the algorithm's compression time and compression efficiency on the
-given file. Hint: This could be a good use case for the fork pattern, but remember
-that we made some important performance considerations when we discussed it earlier in this chapter.
-*/
 import { createGzip, createBrotliCompress, createDeflate } from 'zlib';
 import fs, { createReadStream, createWriteStream } from 'fs';
 import path from 'path';
 import { performance } from 'perf_hooks';
+import { PassThrough } from 'stream';
+
 const DEFAULT_DEST = '/tmp';
 
 const calculateCompressionPercentage = (originalSize, compressedSize) => {
 	if (!originalSize || originalSize === 0) {
-		console.warn('Original size must be greater than 0');
+		console.warn('Hold up there, Sparky! You must provide a size greater than 0');
 		return null;
 	}
 	return ((1 - compressedSize / originalSize) * 100).toFixed(2);
 };
 
-const compressFile = async (filePath, outputDir, compressFileCallback) => {
+class CompressionTimer extends PassThrough {
+	constructor(compressionType, initSize, outputPath, options = {}) {
+		super(options);
+		this.compressionType = compressionType;
+		this.startTime = null;
+		this.initSize = initSize;
+		this.outputPath = outputPath;
+		this.bytesWritten = 0;
+	}
+
+	_transform(chunk, _, cb) {
+		if (!this.startTime) {
+			this.startTime = performance.now();
+		}
+		this.bytesWritten += chunk.length;
+		cb(null, chunk);
+	}
+
+	_flush(cb) {
+		const finalSize = fs.statSync(this.outputPath).size;
+		const compressionPct = calculateCompressionPercentage(this.initSize, finalSize);
+		const endTime = performance.now();
+		const runTime = endTime - this.startTime;
+		console.log(
+			`${this.compressionType}: Compression Percentage = ${compressionPct}%,  Time = ${runTime}ms, Bytes Written = ${this.bytesWritten}`
+		);
+		cb();
+	}
+}
+
+const compressFile = (filePath, outputDir) => {
 	const baseFilename = path.basename(filePath);
-	console.log(`baseFilename = ${baseFilename}`);
 	const outputPath = path.join(outputDir, baseFilename);
-	console.log(`baseFilename = ${baseFilename}, outputPath = ${outputPath}`);
 	const initSize = fs.statSync(filePath).size;
-	const compressionResults = {};
 
 	const compressionOpts = {
 		gz: createGzip,
@@ -34,52 +55,47 @@ const compressFile = async (filePath, outputDir, compressFileCallback) => {
 		def: createDeflate,
 	};
 
-	const totalLength = Object.keys(compressionOpts).length;
-	let completed = 0;
-	const inputStream = createReadStream(filePath);
+	const inputStream = createReadStream(filePath).pause();
+	const totalTasks = Object.keys(compressionOpts).length;
+	let completedTasks = 0;
+
+	const checkCompletion = () => {
+		completedTasks += 1;
+		if (completedTasks === totalTasks) {
+			console.log('Done!');
+		}
+	};
+
 	Object.entries(compressionOpts).forEach(([ext, compressionFn]) => {
-		let start;
-		let runTime;
-
 		const outputFilePath = `${outputPath}.${ext}`;
+		const timer = new CompressionTimer(ext, initSize, outputFilePath);
 
-		inputStream.pipe(compressionFn()
-			.on('pipe', () => {
-				start = performance.now();
-			})
+		inputStream
+			// this is just here to fork the input stream
+			.pipe(new PassThrough())
+			.pipe(compressionFn())
+			.pipe(timer)
+			.pipe(createWriteStream(outputFilePath))
 			.on('finish', () => {
-				const end = performance.now();
-				runTime = end - start;
-			})
-
-		).pipe(createWriteStream(outputFilePath))
-			.on('finish', () => {
-				const finalSize = fs.statSync(outputFilePath).size;
-				const compressionPct = calculateCompressionPercentage(initSize, finalSize);
-				compressionResults[ext] = {
-					runTime,
-					initSize,
-					finalSize,
-					compressionPct,
-				};
-				completed += 1;
-				console.log(`finish for ${ext}. completed = ${completed}, totalLength = ${totalLength}`);
-				if (completed === totalLength) {
-					console.log('all set');
-					compressFileCallback(compressionResults);
-				}
+				console.log(`${ext} Compression finished.`);
+				checkCompletion();
 			})
 			.on('error', err => {
 				console.error(`Error during ${ext} compression:`, err);
+				// even on errors, we want to mark this complete
+				checkCompletion();
 			});
 	});
+
+	inputStream.resume();
 };
 
 const filePath = process.argv[2];
 const dest = process.argv[3] || DEFAULT_DEST;
-console.log(`filname = ${filePath}, dest = ${dest}`);
 
-const compressFileCallback = results => {
-	console.log(`results = ${JSON.stringify(results, null, 2)}`);
-};
-compressFile(filePath, dest, compressFileCallback);
+if (!filePath) {
+	console.error('Error: No input file provided.');
+	process.exit(1);
+}
+
+compressFile(filePath, dest);
