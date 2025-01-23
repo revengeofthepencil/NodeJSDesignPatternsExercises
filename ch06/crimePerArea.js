@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
-import { Transform } from 'stream';
+import { PassThrough } from 'stream';
 
-export class CrimePerArea extends Transform {
+export class CrimePerArea extends PassThrough {
 	constructor(options = {}) {
 		super({
 			...options,

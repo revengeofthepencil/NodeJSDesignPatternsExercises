@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
-import { Transform } from 'stream';
+import { PassThrough } from 'stream';
 
-export class CountPerCrimCategory extends Transform {
+export class CountPerCrimCategory extends PassThrough {
 	constructor(options = {}) {
 		super({
 			...options,

@@ -10,6 +10,7 @@ import { createGzip, createBrotliCompress, createDeflate } from 'zlib';
 import fs, { createReadStream, createWriteStream } from 'fs';
 import path from 'path';
 import { performance } from 'perf_hooks';
+const DEFAULT_DEST = '/tmp';
 
 const calculateCompressionPercentage = (originalSize, compressedSize) => {
 	if (!originalSize || originalSize === 0) {
@@ -35,11 +36,11 @@ const compressFile = async (filePath, outputDir, compressFileCallback) => {
 
 	const totalLength = Object.keys(compressionOpts).length;
 	let completed = 0;
+	const inputStream = createReadStream(filePath);
 	Object.entries(compressionOpts).forEach(([ext, compressionFn]) => {
 		let start;
 		let runTime;
 
-		const inputStream = createReadStream(filePath);
 		const outputFilePath = `${outputPath}.${ext}`;
 
 		inputStream.pipe(compressionFn()
@@ -74,7 +75,6 @@ const compressFile = async (filePath, outputDir, compressFileCallback) => {
 	});
 };
 
-const DEFAULT_DEST = '/tmp';
 const filePath = process.argv[2];
 const dest = process.argv[3] || DEFAULT_DEST;
 console.log(`filname = ${filePath}, dest = ${dest}`);
