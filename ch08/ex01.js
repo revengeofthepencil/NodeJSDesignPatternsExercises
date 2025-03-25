@@ -34,7 +34,7 @@ const getResultsViaProxy = async () => {
 		// eslint-disable-next-line no-await-in-loop
 		const json = await fetchJsonProxy(`${URL}${randomNum}`);
 		const { results } = json;
-		console.log(`Called for ${randomNum} results, got ${results.length} results. First name = ${JSON.stringify(results[0].name)}`);
+		console.log(`Called for ${randomNum} results, got ${results.length} results. First name = ${JSON.stringify(results[0].name)}\n`);
 	}
 };
 
