@@ -31,6 +31,6 @@ function createColorLogger(logger) {
 const colorLogger = createColorLogger(console);
 colorLogger.red('this one is red');
 colorLogger.green('this one is green');
-colorLogger.log('this one has no color');
+colorLogger.log('this one has no color, just logging');
 colorLogger.warn('this one has no color but is a warning');
 colorLogger.yellow('this one is yellow');
