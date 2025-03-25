@@ -11,8 +11,6 @@ import fetch from 'node-fetch';
 const URL = 'https://randomuser.me/api/?nat=US&results=';
 const NUM_RESULTS = 10;
 
-const randomNumber = () => Math.floor(Math.random() * 5) + 1;
-
 const fetchJsonProxy = (() => {
 	const jsonCache = {};
 
@@ -38,7 +36,7 @@ const fetchJsonProxy = (() => {
 
 const getResultsViaProxy = async () => {
 	for (let i = 0; i < NUM_RESULTS; i++) {
-		const randomNum = randomNumber();
+		const randomNum = Math.floor(Math.random() * 5) + 1;
 		// eslint-disable-next-line no-await-in-loop
 		const json = await fetchJsonProxy(`${URL}${randomNum}`);
 		const { results } = json;
