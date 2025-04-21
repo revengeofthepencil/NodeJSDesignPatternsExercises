@@ -6,11 +6,11 @@ export class AsyncQueueTask5 {
 
 	enqueue(task) {
 		this.asyncQueue.push(task);
+		this.asyncQueueIterator = this.asyncQueue[Symbol.iterator]();
 	}
 
 	[Symbol.asyncIterator]() {
-		const asyncQueueIterator = this.asyncQueue[Symbol.iterator]();
-
+		const { asyncQueueIterator } = this;
 		return {
 			async next() {
 				const iteratorResult = asyncQueueIterator.next();
