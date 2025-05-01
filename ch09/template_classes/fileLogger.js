@@ -24,15 +24,15 @@ export class FileLogger extends AbstractLoggerTemplate {
 		fs.appendFileSync(this.filePath, `${rightNow}: ${message}\n`);
 	}
 
-	_error(message) {
+	error(message) {
 		this.writeToTmpFile(`ERROR: ${message}`);
 	}
 
-	_log(message) {
+	log(message) {
 		this.writeToTmpFile(`INFO: ${message}`);
 	}
 
-	_warn(message) {
+	warn(message) {
 		this.writeToTmpFile(`WARN: ${message}`);
 	}
 }

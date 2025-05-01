@@ -16,7 +16,7 @@ const loggers = [
 ];
 
 loggers.forEach(logger => {
-	logger._log('This is a template log message');
-	logger._warn('This is a template warning message');
-	logger._error('This is a template error message');
+	logger.log('This is a template log message');
+	logger.warn('This is a template warning message');
+	logger.error('This is a template error message');
 });

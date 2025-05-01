@@ -1,15 +1,15 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable class-methods-use-this */
 export class AbstractLoggerTemplate {
-	_warn(message) {
+	warn(message) {
 		throw new Error('this is an abstract thing');
 	}
 
-	_log(message) {
+	log(message) {
 		throw new Error('this is an abstract thing');
 	}
 
-	_error(message) {
+	error(message) {
 		throw new Error('this is an abstract thing');
 	}
 }
