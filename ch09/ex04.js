@@ -14,7 +14,7 @@ import { consoleMiddleWare } from './log_middleware/console.js';
 import { fileMiddleWare } from './log_middleware/file.js';
 import { serializeMiddleWare } from './log_middleware/serialize.js';
 
-class LogWithMiddleWar {
+class LogWithMiddleWear {
 	constructor() {
 		this.middleware = [];
 	}
@@ -44,7 +44,7 @@ class LogWithMiddleWar {
 	}
 }
 
-const middleWareLogger = new LogWithMiddleWar();
+const middleWareLogger = new LogWithMiddleWear();
 middleWareLogger.use(consoleMiddleWare());
 middleWareLogger.use(serializeMiddleWare());
 middleWareLogger.use(fileMiddleWare());
