@@ -5,6 +5,8 @@ const salesDb = new Level('example-db', { valueEncoding: 'json' });
 const products = ['book', 'game', 'app', 'song', 'movie'];
 
 async function populate() {
+	await salesDb.open(); // Ensure DB is open
+
 	for (let i = 0; i < 100000; i++) {
 		// eslint-disable-next-line no-await-in-loop
 		await salesDb.put(nanoid(), {
