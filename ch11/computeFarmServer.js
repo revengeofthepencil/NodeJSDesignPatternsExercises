@@ -22,7 +22,9 @@ createServer(async (req, res) => {
 	}
 
 	let body = '';
-	req.on('data', chunk => body += chunk);
+	req.on('data', chunk => {
+		body += chunk;
+	});
 	req.on('end', async () => {
 		try {
 			const json = JSON.parse(body);
