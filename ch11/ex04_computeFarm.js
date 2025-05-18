@@ -11,7 +11,7 @@ implications are.
 */
 
 const url = 'http://localhost:8000';
-const args = [1, 2, 3];
+const args = [1, 2, 3, 4, 5, 6];
 
 const firstFunction = nums => nums.reduce((a, b) => a + b, 0);
 const secondFunction = async nums => {
