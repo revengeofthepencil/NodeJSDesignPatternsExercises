@@ -1,10 +1,9 @@
 import { createServer } from 'http';
+// import { Worker } from 'worker_threads';
 
-const addNumbers = nums => {
-	let total = 0;
-	nums.forEach(num => { total += num; });
-	return total;
-};
+function isPromise(obj) {
+	return !!obj && typeof obj.then === 'function';
+}
 
 createServer(async (req, res) => {
 	const { method } = req;
@@ -21,11 +20,18 @@ createServer(async (req, res) => {
 			console.log(`json = ${JSON.stringify(json)}`);
 			const { function: functionString, arguments: argsInput } = json;
 			try {
+				// eslint-disable-next-line no-eval
 				const fn = eval(`(${functionString})`);
-				const result = fn(argsInput);
+				const funcRes = fn(argsInput);
 				res.setHeader('Content-Type', 'application/json');
 				res.writeHead(200);
-				res.end(JSON.stringify({ result }));
+				if (isPromise(funcRes)) {
+					funcRes.then(result => {
+						res.end(JSON.stringify({ result }));
+					});
+				} else {
+					res.end(JSON.stringify({ result: funcRes }));
+				}
 			} catch (error) {
 				console.error(error);
 				res.end();
