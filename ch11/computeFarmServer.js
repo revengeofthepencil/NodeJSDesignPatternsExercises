@@ -1,6 +1,10 @@
 import { createServer } from 'http';
 import { Worker } from 'worker_threads';
 
+/*
+confession: I asked ChatGPT for a little help using worker_threads
+*/
+
 const MAX_WORKERS = 3;
 const workers = [];
 let currentWorker = 0;
