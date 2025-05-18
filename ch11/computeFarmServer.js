@@ -33,11 +33,14 @@ createServer(async (req, res) => {
 			const worker = getNextWorker();
 
 			const result = await new Promise((resolve, reject) => {
-				const handleMessage = ({ result, error }) => {
+				const handleMessage = ({ result: currentRes, error }) => {
 					worker.off('message', handleMessage);
 					worker.off('error', reject);
-					if (error) return reject(new Error(error));
-					resolve(result);
+					if (error) {
+						return reject(new Error(error));
+					}
+
+					return resolve(currentRes);
 				};
 
 				worker.on('message', handleMessage);
