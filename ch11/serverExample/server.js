@@ -13,4 +13,4 @@ createServer(async (req, res) => {
 		product,
 		sum,
 	}));
-}).listen(8000, () => console.log('Server started'));
+}).listen(8000, () => console.log('Server started on port 8000'));

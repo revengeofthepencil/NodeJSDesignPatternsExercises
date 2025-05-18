@@ -17,6 +17,6 @@ export async function totalSales(product) {
 		}
 	}
 
-	console.log(`totalSales() took: ${Date.now() - now}ms`);
+	console.log(`totalSales() took: ${Date.now() - now}ms. sum = ${sum}`);
 	return sum;
 }
