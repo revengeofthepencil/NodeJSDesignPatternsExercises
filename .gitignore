@@ -108,4 +108,6 @@ public
 
 .DS_Store
 
+
 **/node_modules/
+**/example-db/
