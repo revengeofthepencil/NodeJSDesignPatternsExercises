@@ -25,7 +25,7 @@ const secondFunction = async nums => {
 const thirdFunction = nums => nums.reduce((a, b) => a - b, 0);
 const fourthFunction = nums => nums.reduce((a, b) => a + (b * b), 0);
 
-const sendFunctionWithParams = func => {
+const sendFunctionWithParams = (func, reqId) => {
 	const payload = {
 		function: func.toString(),
 		arguments: args,
@@ -34,13 +34,20 @@ const sendFunctionWithParams = func => {
 		.post(url)
 		.send(payload)
 		.then(res => {
-			console.log(`Response with function ${func}: ${JSON.stringify(res.body.result)}`);
+			console.log(`Response with function reqId ${reqId} and ${func}: ${JSON.stringify(res.body.result)}`);
 		})
 		.catch(err => {
 			console.error('Error:', err.message);
 		});
 };
 
-[firstFunction, secondFunction, thirdFunction, fourthFunction].forEach(func => {
-	sendFunctionWithParams(func);
+let reqCount = 0;
+// just send them all twice
+[firstFunction, secondFunction, thirdFunction, fourthFunction,
+	firstFunction, secondFunction, thirdFunction, fourthFunction,
+
+].forEach(func => {
+	reqCount += 1;
+	const reqId = `req${reqCount}`;
+	sendFunctionWithParams(func, reqId);
 });

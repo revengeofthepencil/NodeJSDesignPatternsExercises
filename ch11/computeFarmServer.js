@@ -2,7 +2,7 @@ import { createServer } from 'http';
 import { Worker } from 'worker_threads';
 
 /*
-confession: I asked ChatGPT for a little help using worker_threads
+TODO: we still have a bit of work to do here with releaseing the workers
 */
 
 const MAX_WORKERS = 3;
@@ -12,7 +12,15 @@ let currentWorker = 0;
 function getNextWorker() {
 	if (workers.length < MAX_WORKERS) {
 		const worker = new Worker('./worker.js');
+		worker.once('online', () => {
+			console.log(`Worker ${worker.threadId} is online`);
+		});
+		worker.once('exit', code => {
+			console.log(`Worker ${worker.threadId} exited with code ${code}`);
+		});
 		workers.push(worker);
+	} else {
+		console.log(`Reusing worker ${workers[currentWorker].threadId}`);
 	}
 	const worker = workers[currentWorker];
 	currentWorker = (currentWorker + 1) % MAX_WORKERS;
@@ -35,6 +43,10 @@ createServer(async (req, res) => {
 			const { function: functionString, arguments: argsInput } = json;
 
 			const worker = getNextWorker();
+			if (!worker) {
+				res.writeHead(503);
+				return res.end('No available workers');
+			}
 
 			const result = await new Promise((resolve, reject) => {
 				const handleMessage = ({ result: currentRes, error }) => {

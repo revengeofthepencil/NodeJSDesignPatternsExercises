@@ -24,6 +24,7 @@
     "perf_hooks": "^0.0.1",
     "slug": "^8.2.3",
     "superagent": "^8.1.2",
+    "worker-thread": "^1.1.0",
     "zlib": "^1.0.5"
   },
   "engines": {

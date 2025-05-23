@@ -4,6 +4,9 @@
 11.2 Batching and caching with callbacks: Implement batching and caching for the totalSales API
 examples using only callbacks, streams, and events (without using promises or async/await). Hint:
 Pay attention to Zalgo when returning cached values!
+
+note: this one assumes that the server is running and the API is available at localhost:8000
+Try the server script in serverExample/server.js first.
 */
 import superagent from 'superagent';
 
