@@ -1,6 +1,7 @@
 {
   "name": "ex02-zindex",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
@@ -10,6 +11,7 @@
   "dependencies": {
     "@faker-js/faker": "^9.8.0",
     "express": "^4.18.4",
-    "mongodb": "^6.3.0"
+    "mongodb": "^6.3.0",
+    "portfinder": "^1.0.37"
   }
 }
