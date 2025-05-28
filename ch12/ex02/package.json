@@ -1,0 +1,15 @@
+{
+  "name": "ex02-zindex",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js",
+    "start:with-seed": "npm run seed && npm run start"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.8.0",
+    "express": "^4.18.4",
+    "mongodb": "^6.3.0"
+  }
+}

@@ -1,0 +1,24 @@
+services:
+  mongo:
+    image: mongo:8
+    container_name: my-mongo
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  node-app:
+    build: .
+    container_name: ex02-zindex-app
+    ports:
+      - "3003:3003"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/zIndexDB
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  mongo-data:
