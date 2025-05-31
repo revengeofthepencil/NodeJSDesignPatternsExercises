@@ -2,18 +2,16 @@
 import { MongoClient } from 'mongodb';
 import { faker } from '@faker-js/faker';
 
-const mongoAdUrl = process.env.MONGO_AD_URL || 'mongodb://localhost:27018/zIndexAD';
-const mongoEpUrl = process.env.MONGO_EP_URL || 'mongodb://localhost:27019/zIndexEP';
-const mongoQzUrl = process.env.MONGO_QZ_URL || 'mongodb://localhost:27020/zIndexQZ';
+import { getTargetKeyFromLetter, MONGO_AD_URL, MONGO_EP_URL, MONGO_QZ_URL } from './dbConstants.js';
 
 const FAKE_PEOPLE_COUNT = 100000;
 const BATCH_SIZE = 1000;
 
 async function seed() {
 	// Connect to each database
-	const clientAD = new MongoClient(mongoAdUrl);
-	const clientEP = new MongoClient(mongoEpUrl);
-	const clientQZ = new MongoClient(mongoQzUrl);
+	const clientAD = new MongoClient(MONGO_AD_URL);
+	const clientEP = new MongoClient(MONGO_EP_URL);
+	const clientQZ = new MongoClient(MONGO_QZ_URL);
 
 	try {
 		await Promise.all([clientAD.connect(), clientEP.connect(), clientQZ.connect()]);
@@ -47,9 +45,7 @@ async function seed() {
 			}));
 			const batchMap = batch.reduce((acc, person) => {
 				const firstLetter = person.firstName[0].toUpperCase();
-				const targetKey = firstLetter < 'D' ? 'AD'
-					: firstLetter < 'E' ? 'EP'
-						: 'QZ';
+				const targetKey = getTargetKeyFromLetter(firstLetter);
 
 				if (!acc[targetKey]) {
 					acc[targetKey] = [];
