@@ -4,7 +4,7 @@ function createApp(dbMap) {
 	const app = express();
 
 	app.get('/', (req, res) => {
-		res.send('Can you dig it?');
+		res.json({ message: 'Can you dig it?' });
 	});
 
 	return app;
