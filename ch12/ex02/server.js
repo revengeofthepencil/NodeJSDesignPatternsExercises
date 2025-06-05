@@ -1,7 +1,6 @@
 /* eslint-disable import/extensions */
 import { MongoClient } from 'mongodb';
 import portfinder from 'portfinder';
-import consul from 'consul';
 
 import { MONGO_AD_URL, MONGO_EP_URL, MONGO_QZ_URL } from './dbConstants.js';
 import createDBEndpointApp from './createDBEndpointApp.js';
