@@ -1,0 +1,46 @@
+services:
+  mongo-ad:
+    image: mongo:8
+    container_name: mongo-ad
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-ad-data:/data/db
+
+  mongo-ep:
+    image: mongo:8
+    container_name: mongo-ep
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo-ep-data:/data/db
+
+  mongo-qz:
+    image: mongo:8
+    container_name: mongo-qz
+    ports:
+      - "27020:27017"
+    volumes:
+      - mongo-qz-data:/data/db
+
+  node-app:
+    build: .
+    container_name: ex02-zindex-app
+    ports:
+      - "3003:3003"
+    depends_on:
+      - mongo-ad
+      - mongo-ep
+      - mongo-qz
+    environment:
+      - MONGO_AD_URL=mongodb://mongo-ad:27017/zIndexAD
+      - MONGO_EP_URL=mongodb://mongo-ep:27017/zIndexEP
+      - MONGO_QZ_URL=mongodb://mongo-qz:27017/zIndexQZ
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  mongo-ad-data:
+  mongo-ep-data:
+  mongo-qz-data:

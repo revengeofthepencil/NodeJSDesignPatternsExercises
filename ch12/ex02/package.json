@@ -1,0 +1,22 @@
+{
+  "name": "ex02-zindex",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "seed": "node seed.js",
+    "dev": "nodemon server.js",
+    "start:with-seed": "npm run seed && npm run dev"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^9.8.0",
+    "consul": "^2.0.1",
+    "express": "^4.18.4",
+    "mongodb": "^6.16.0",
+    "portfinder": "^1.0.37"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
