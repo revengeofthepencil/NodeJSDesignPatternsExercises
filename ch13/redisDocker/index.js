@@ -5,8 +5,10 @@ import staticHandler from 'serve-handler';
 import * as ws from 'ws';
 import Redis from 'ioredis';
 
-const redisSub = new Redis('redis://redis-pubsub:6379');
-const redisPub = new Redis('redis://redis-pubsub:6379');
+const REDIS_URL = process.env.REDIS_URL || 'redis://redis-pubsub:6379';
+
+const redisSub = new Redis(REDIS_URL);
+const redisPub = new Redis(REDIS_URL);
 
 /*
 note: I kicked this off with a local Redis server running on the default port 6379.

@@ -1,22 +1,22 @@
 services:
-  redis:
-    image: redis:7
-    container_name: redis
+  mongo-rabbitmq:
+    image: mongo:8
+    container_name: mongo-rabbitmq
     ports:
-      - "6379:6379"
+      - "27018:27017"
     volumes:
-      - redis-data:/data
+      - mongo-rabbitmq-data:/data/db
 
   node-app:
     build: .
-    container_name: rabbitmq
+    container_name: rabbitmqPubSub
     ports:
-      - "3003:3003"
+      - "8080:8080"
     depends_on:
-      - redis
+      - mongo-rabbitmq
     volumes:
       - .:/app
       - /app/node_modules
 
 volumes:
-  redis-data:
+  mongo-rabbitmq-data:

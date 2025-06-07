@@ -1,0 +1,22 @@
+{
+  "name": "rabbitmq-example",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js 8080",
+    "dev": "nodemon index.js 8080"
+  },
+  "dependencies": {
+    "express": "^4.18.4",
+    "ioredis": "^5.6.1",
+    "mongodb": "^6.16.0",
+    "portfinder": "^1.0.37",
+    "serve-handler": "^6.1.6",
+    "ws": "^8.18.2"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.10"
+  }
+}
