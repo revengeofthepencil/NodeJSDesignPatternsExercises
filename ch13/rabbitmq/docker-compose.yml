@@ -7,16 +7,31 @@ services:
     volumes:
       - mongo-rabbitmq-data:/data/db
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" 
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
   node-app:
     build: .
     container_name: rabbitmqPubSub
     ports:
       - "8080:8080"
+      - "8081:8081"
     depends_on:
       - mongo-rabbitmq
+      - rabbitmq
+    environment:
+      - MONGO_URL=mongodb://mongo-rabbitmq:27017/messages
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     volumes:
       - .:/app
       - /app/node_modules
 
 volumes:
   mongo-rabbitmq-data:
+  rabbitmq-data:
