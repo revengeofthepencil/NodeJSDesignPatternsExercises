@@ -28,6 +28,8 @@
     "superagent": "^8.1.2",
     "worker-thread": "^1.1.0",
     "ws": "^8.18.2",
+    "yargs": "^18.0.0",
+    "zeromq": "^6.4.2",
     "zlib": "^1.0.5"
   },
   "engines": {

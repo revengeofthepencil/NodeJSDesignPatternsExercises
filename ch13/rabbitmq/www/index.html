@@ -13,6 +13,7 @@
       )
       console.log('window.document.location.host = ' + window.document.location.host);
       ws.onmessage = function (message) {
+        console.log('on message!');
          const msgDiv = document.createElement('div')
         msgDiv.innerHTML = message.data
         document.getElementById('messages').appendChild(msgDiv)

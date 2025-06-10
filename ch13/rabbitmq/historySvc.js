@@ -28,14 +28,9 @@ async function main() {
 	});
 
 	createServer((req, res) => {
-		res.writeHead(200);
-		mongoDB.collection('messages').find().toArray((err, messages) => {
-			if (err) {
-				res.writeHead(500);
-				return res.end(JSON.stringify(err));
-			}
-			JSONStream.stringify()(messages).pipe(res);
-		});
+		res.writeHead(200, { 'Content-Type': 'application/json' });
+		const cursor = mongoDB.collection('messages').find();
+		cursor.stream().pipe(JSONStream.stringify()).pipe(res);
 	}).listen(8090);
 }
 
