@@ -1,0 +1,19 @@
+{
+  "name": "rabbitmq-example",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "start:with-multi": "concurrently \"node index.js 8080\" \"node index.js 8081\""
+  },
+  "dependencies": {
+    "indexed-string-variation": "^1.0.3",
+    "ioredis": "^5.6.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "nodemon": "^3.1.10"
+  }
+}
