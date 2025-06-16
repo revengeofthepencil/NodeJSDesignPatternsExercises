@@ -12,7 +12,6 @@
         `ws://${window.document.location.host}`
       )
       ws.onmessage = function (message) {
-        console.log('Message received: ' + message.data)
         const msgDiv = document.createElement('div')
         msgDiv.innerHTML = message.data
         document.getElementById('messages').appendChild(msgDiv)

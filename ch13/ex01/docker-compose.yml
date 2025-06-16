@@ -1,0 +1,37 @@
+services:
+  redis-pubsub:
+    image: redis:7
+    container_name: redis-pubsub
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+  mongo-redisPubSub:
+    image: mongo:8
+    container_name: mongo-redisPubSub
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-redisPubSub-data:/data/db
+
+  node-app:
+    build: .
+    container_name: redisPubSub
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - redis-pubsub
+      - mongo-redisPubSub
+    environment:
+      - MONGO_URL=mongodb://mongo-redisPubSub:27017/redisPubSub
+      - REDIS_HOST=redis-pubsub
+      - REDIS_PORT=6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+
+volumes:
+  redis-data:
+  mongo-redisPubSub-data:
