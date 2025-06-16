@@ -14,6 +14,21 @@ services:
     volumes:
       - mongo-redisPubSub-data:/data/db
 
+  history-service:
+    build: .
+    container_name: historySvcRedis
+    command: node historySvcRedis.js
+    depends_on:
+      - redis-pubsub
+      - mongo-redisPubSub
+    environment:
+      - MONGO_URL=mongodb://mongo-redisPubSub:27017/redisPubSub
+      - REDIS_HOST=redis-pubsub
+      - REDIS_PORT=6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+
   node-app:
     build: .
     container_name: redisPubSub
@@ -23,8 +38,8 @@ services:
     depends_on:
       - redis-pubsub
       - mongo-redisPubSub
+      - history-service
     environment:
-      - MONGO_URL=mongodb://mongo-redisPubSub:27017/redisPubSub
       - REDIS_HOST=redis-pubsub
       - REDIS_PORT=6379
     volumes:

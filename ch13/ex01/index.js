@@ -5,16 +5,13 @@ import staticHandler from 'serve-handler';
 import * as ws from 'ws';
 import Redis from 'ioredis';
 
+import { getAllMessages } from './historySvcRedis.js';
+const port = process.argv[2] || 8080;
+
 const REDIS_URL = process.env.REDIS_URL || 'redis://redis-pubsub:6379';
 
 const redisSub = new Redis(REDIS_URL);
 const redisPub = new Redis(REDIS_URL);
-
-/*
-note: I kicked this off with a local Redis server running on the default port 6379.
-You can install with Docker (I'm using 8.0.0) by running
-docker run -d --name redis -p 6379:6379 redis:8.0.0
-*/
 
 // serve static files
 const server = createServer((req, res) => // (1)
@@ -23,7 +20,13 @@ const server = createServer((req, res) => // (1)
 const wss = new ws.WebSocketServer({ server });
 
 wss.on('connection', client => {
-	console.log('Client connected');
+	console.log(`Client connected on port ${port}`);
+	getAllMessages().then(allMessages => { // (2)
+		for (const { message, _id } of allMessages) {
+			client.send(`${message} (id: ${_id})`); // send each message to the client
+		}
+	}
+	).catch(err => console.error(err));
 	client.on('message', msg => { // (3)
 		console.log(`Message: ${msg}`);
 		redisPub.publish('chat_messages', msg);
@@ -40,4 +43,4 @@ redisSub.on('message', (channel, msg) => {
 	}
 });
 
-server.listen(process.argv[2] || 8080);
+server.listen(process.argv[2] || port);
